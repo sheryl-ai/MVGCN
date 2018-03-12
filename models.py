@@ -475,8 +475,6 @@ class siamese_m_cgcnn(base_model):
 
 
     def chebyshev5(self, x, L, Fout, K):
-        print ('mark...')
-        print ('+++++')
         N, M, Fin = x.get_shape()
         N, M, Fin = int(N), int(M), int(Fin)
         # Rescale Laplacian and store as a TF sparse tensor. Copy to not modify the shared L.

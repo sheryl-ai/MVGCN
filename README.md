@@ -12,7 +12,7 @@ The objective function is established for a binary classification problem, which
 
 * The components utilized in the MVGCN are:
     * GCNs: incorporating coordinates of ROI (Region of Interest) with brain networks (DTI) together to learn interpretable representations.  
-    * View pooling: combining view-based representations of DTI data obtained from various tractography algorithms.  
+    * View pooling: combining view-based representations of DTI data that are obtained from various tractography algorithms.  
     * Pairwise matching: computing similarities by euclidean distance for sample pairs in terms of the pooled features.  
     * Softmax: classifying the output of pairwise matching layer into the matching vs. non-matching classes.
 

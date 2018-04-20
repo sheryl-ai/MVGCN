@@ -17,14 +17,12 @@ The objective function is established for a binary classification problem, which
     * Softmax: classifying the output of pairwise matching layer into the matching vs. non-matching classes.
 
 ## Requirements
-    This package has the following requirements:
-    * `python3.x`
-    * An NVIDIA GPU w/.
-    * [TensorFlow](https://github.com/tensorflow/tensorflow)
-        * Used for automatic differentiation
+This package has the following requirements:
+* `python3.x`
+* An NVIDIA GPU w/.
+* [TensorFlow](https://github.com/tensorflow/tensorflow)
 
-### Usage
-
+## Usage
 To run MVGCN on your data, you need to: change the function of loading data in utils.py; define the names of multiple views in mvgcn.sh; set hyperparameters for MVGCN in mvgcn.sh; run the shell script mvgcn.sh
 ```bash
 bash mvgcn.sh

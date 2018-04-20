@@ -8,7 +8,7 @@ This repository contains TensorFlow code for implementing Multi-View Graph Convo
 ## Model
 The objective function is established for a binary classification problem, which is matching vs. non-matching classes. brain networks in the same group (PD or HC) are labeled as matching pairs while brain networks from different groups are labeled as non-matching pairs. Hence, pairwise training samples are feed into the neural network. The figure depicts the pairwise learning architecture.  
 
-<p align="center"><img src="images/overall.png" alt="Pairwise Learning Architecture" width="300"></p>
+<p align="center"><img src="images/overall.png" alt="Pairwise Learning Architecture" width="500"></p>
 
 * The components utilized in the MVGCN are:
     * GCNs: incorporating coordinates of ROI (Region of Interest) with brain networks (DTI) together to learn interpretable representations.  

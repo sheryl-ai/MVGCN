@@ -1,7 +1,7 @@
 # Multi-View GCN (MVGCN) for Brain Networks
 
 ## Overview
-<p align="center"><img src="images/GCN.png" alt="Multi-View GCN" width="500"></p>
+<p align="center"><img src="images/GCN.png" alt="Multi-View GCN" width="600"></p>
 
 This repository contains TensorFlow code for implementing Multi-View Graph Convolutional Network for brain networks (DTI data). To do this, we train models using graph convolutional networks (GCNs) in multiple views to learn view-based feature representations. Then, view pooling is conducted for the purpose of multi-view feature fusion. The code is documented and should be easy to modify for your own applications.      
 

@@ -6,7 +6,7 @@
 This repository contains TensorFlow code for implementing Multi-View Graph Convolutional Network for brain networks (DTI data). To do this, we train models using graph convolutional networks (GCNs) in multiple views to learn view-based feature representations. Then, view pooling is conducted for the purpose of multi-view feature fusion. The code is documented and should be easy to modify for your own applications.      
 
 ## Model
-The objective function is established for a binary classification problem, which is matching vs. non-matching classes. brain networks in the same group (PD or HC) are labeled as matching pairs while brain networks from different groups are labeled as non-matching pairs. Hence, pairwise training samples are feed into the neural network. The figure depicts the pairwise learning architecture.  
+The objective function is established for a binary classification problem, which is matching vs. non-matching classes. Brain networks in the same group (PD or HC) are labeled as matching pairs while brain networks from different groups are labeled as non-matching pairs. Hence, pairwise training samples are feed into the neural network. The figure depicts the pairwise learning architecture.  
 
 <p align="center"><img src="images/overall.png" alt="Pairwise Learning Architecture" width="500"></p>
 

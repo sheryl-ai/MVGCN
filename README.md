@@ -37,4 +37,4 @@ bash mvgcn.sh
   year={2018}
 }
 ```
-This paper can be accessed by : [Multi-View GCN] (https://arxiv.org/pdf/1805.08801.pdf)
+This paper can be accessed on : [Multi-View GCN] (https://arxiv.org/pdf/1805.08801.pdf)

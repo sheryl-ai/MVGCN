@@ -27,3 +27,14 @@ To run MVGCN on your data, you need to: change the function of loading data in u
 ```bash
 bash mvgcn.sh
 ```
+
+## References: 
+```
+@article{zhang2018multi,
+  title={Multi-View Graph Convolutional Network and Its Applications on Neuroimage Analysis for Parkinson's Disease},
+  author={Zhang, Xi and He, Lifang and Chen, Kun and Luo, Yuan and Zhou, Jiayu and Wang, Fei},
+  journal={arXiv preprint arXiv:1805.08801},
+  year={2018}
+}
+```
+This paper can be accessed by : [Multi-View GCN] (https://arxiv.org/pdf/1805.08801.pdf)

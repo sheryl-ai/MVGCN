@@ -32,14 +32,14 @@ The input file "dti.coo.pkl" is the XYZ-coordinate for given samples with the 3d
 
 The input file "dti.pair.pkl" stores the index of samples and their corresponding labels by a tuple(pairs, labels), where pairs is a list of pairwise indices. And labels is a list of integer values. Here is an example with 6 pair samples: 
 
-| Pairs   |         | Labels      |  
-|:-------:|:-------:|:-----------:|
-|       0 |       8 |           1 | 
-|       0 |       9 |           1 | 
-|       0 |      10 |           1 |  
-|       0 |      26 |           0 |  
-|       1 |       5 |           0 | 
-|       1 |       6 |           0 | 
+| Index 1   | Index 2   | Labels      |  
+|:---------:|:---------:|:-----------:|
+|         0 |         8 |           1 | 
+|         0 |         9 |           1 | 
+|         0 |        10 |           1 |  
+|         0 |        26 |           0 |  
+|         1 |         5 |           0 | 
+|         1 |         6 |           0 | 
 
 In detail, we use label 1 to indicate the sample pair belongs to the same class and label 0 to indicate it belongs to the different class.
 

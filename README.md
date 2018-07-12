@@ -29,6 +29,7 @@ bash mvgcn.sh
 ```
 
 ## References: 
+If you happen to use our work, please consider citing our paper.
 ```
 @article{zhang2018multi,
   title={Multi-View Graph Convolutional Network and Its Applications on Neuroimage Analysis for Parkinson's Disease},

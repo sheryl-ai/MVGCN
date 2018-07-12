@@ -23,6 +23,7 @@ This package has the following requirements:
 * [TensorFlow](https://github.com/tensorflow/tensorflow)
 
 ## Usage
+### How to Run
 To run MVGCN on your data, you need to: change the function of loading data in utils.py; define the names of multiple views in mvgcn.sh; set hyperparameters for MVGCN in mvgcn.sh; run the shell script mvgcn.sh
 ```bash
 bash mvgcn.sh

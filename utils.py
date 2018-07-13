@@ -25,7 +25,6 @@ def load_dti(data_type): # not that make sense, but still can be try
         data_v = list()
         if i in delete_sid:
             continue
-        # print (i)
         for view in data_type:
             filepath = '../../../data/input/dti.roi/' + view
             if i not in subj:
@@ -38,7 +37,6 @@ def load_dti(data_type): # not that make sense, but still can be try
                 data_v.append(np.zeros([84, 84], dtype='int32'))
                 print("File %s does not exit" % i)
         data.append(data_v)
-    # print (np.array(data).shape)
     return data, subj
 
 
@@ -54,11 +52,7 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
     # load pairs
     f = open('../../../data/input/dti.pairs.pkl', 'rb')
     pairs, labels = pkl.load(f)
-    # print (len(pairs_labels))
-    # pairs, labels = pairs_labels
     f.close()
-    print (len(pairs))
-    print (len(labels))
 
     # load roi coordinates
     coords = load_roi_coords()
@@ -66,9 +60,6 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
 
     # load data
     data, subj = load_dti(data_type) # dictionary for multiview
-    # data = load_mri(data_type)
-    print (len(data))
-    print (len(subj))
     data = np.array(data)
 
     # train, validate, test split

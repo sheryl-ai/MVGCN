@@ -31,9 +31,9 @@ bash mvgcn.sh
 ### Data Format
 The input file "dti.coo.pkl" is the XYZ-coordinate for given samples with the 3d dimension: n_samples &times n_nodes &times n_XYZ, where n_node equals to the number of ROI in our case. n_XYZ equals to 3 which indicates the X axis, Y axis, and Z axis. 
 
-The input file "dti.pair.pkl" stores the index of samples and their corresponding labels by a tuple(pairs, labels), where pairs is a list of pairwise indices. And labels is a list of integer values. Here is an example with several sample pairs and labels: 
+The input file "dti.pair.pkl" stores the index of samples and their corresponding labels by a tuple(pair, label), where pair is a list of pairwise indices. And label is a list of integer values. Here is an example with several sample pairs and labels: 
 
-| Index 1   | Index 2   | Labels      |  
+| Index 1   | Index 2   | Label       |  
 |:---------:|:---------:|:-----------:|
 |         0 |         8 |           1 | 
 |         0 |         9 |           1 | 

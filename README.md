@@ -29,7 +29,7 @@ To run MVGCN on your data, you need to: change the function of loading data in u
 bash mvgcn.sh
 ```
 ### Data Format
-The input file "dti.coo.pkl" is the XYZ-coordinate for given samples with the 3d dimension: n_samples &times n_nodes &times n_XYZ, where n_node equals to the number of ROI in our case. n_XYZ equals to 3 which indicates the X axis, Y axis, and Z axis. 
+The input file "dti.coo.pkl" is the XYZ-coordinate for given samples with the 3d dimension: n_samples X n_nodes X n_XYZ, where n_node equals to the number of ROI in our case. n_XYZ equals to 3 which indicates the X axis, Y axis, and Z axis. 
 
 The input file "dti.pair.pkl" stores the index of samples and their corresponding labels by a tuple(pair, label), where pair is a list of pairwise indices. And label is a list of integer values. Here is an example with several sample pairs and labels: 
 

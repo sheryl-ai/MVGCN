@@ -43,7 +43,7 @@ The input file "dti.pair.pkl" stores the index of samples and their correspondin
 |         1 |         6 |           0 | 
 |       ... |       ... |         ... | 
 
-In detail, we use label 1 to indicate the sample pair belongs to the same class (matching) and label 0 to indicate it belongs to the different classes (non-matching).
+In detail, we use label 1 to indicate the sample pair belongs to the same class (matching) and label 0 to indicate it belongs to the different classes (non-matching). The index begins from 0. 
 
 ## References: 
 If you happen to use our work, please consider citing our paper: 

@@ -45,6 +45,14 @@ The input file "dti.pair.pkl" stores the index of samples and their correspondin
 
 In detail, we use label 1 to indicate the sample pair belongs to the same class (matching) and label 0 to indicate it belongs to the different classes (non-matching). The index begins from 0. 
 
+### Additional Material:
+There is implementations used in: 
+
+Michaël Defferrard, Xavier Bresson, Pierre Vandergheynst, Convolutional Neural Networks on Graphs with Fast Localized Spectral Filtering(https://arxiv.org/abs/1606.09375), Neural Information Processing Systems (NIPS), 2016.
+
+Sofia Ira Ktena, Sarah Parisot, Enzo Ferrante, Martin Rajchl, Matthew Lee, Ben Glocker, Daniel Rueckert, Distance Metric Learning using Graph Convolutional Networks: Application to Functional Brain Networks(https://arxiv.org/abs/1703.02161), Medical Image Computing and Computer-Assisted Interventions (MICCAI), 2017.
+
+
 ## References: 
 If you happen to use our work, please consider citing our paper: 
 ```

@@ -14,7 +14,7 @@ from sklearn.model_selection import StratifiedKFold
 
 bad_mri_id = [523, 524, 639, 643, 647, 767]
 
-def load_dti(data_type): # not that make sense, but still can be try
+def load_dti(data_type): 
     delete_sid = [373] + bad_mri_id # dti hough do not have the id 373
     subj = list()
     data = list()

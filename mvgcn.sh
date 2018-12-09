@@ -10,5 +10,5 @@
 declare -a view="dti_fact dti_rk2 dti_sl dti_tl qbi_rk2 hough"
 
 # predefined parameters: 'method' 'data_type' 'is_kfold' 'K' 'M' 'n_epoch' 'batch_size'
-python3 train.py "gcn" "$view" "True" 30 128 20 32
+python3 train.py "gcn" $view "True" 30 128 20 32
 echo All done

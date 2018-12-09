@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 import scipy.sparse as sp
+import pickle as pkl
 
 # from tensorflow.examples.tutorials.mnist import input_data
 
@@ -47,6 +48,7 @@ class model_perf(object):
         self.fit_auc, self.fit_losses, self.fit_time = {}, {}, {}
         self.train_auc, self.train_loss = {}, {}
         self.test_auc, self.test_loss = {}, {}
+        self.train_represent = {}
 
 
     def test(self, model, name, params, data, train_pairs, train_labels, val_data, val_labels, test_pairs, test_labels):
@@ -57,7 +59,6 @@ class model_perf(object):
         #         model.evaluate(train_data, train_labels)
         # print('train {}'.format(string))
         del val_data, val_labels
-        del train_pairs, train_labels
         n, v, m, f = data.shape
         if params['method'] == 'gcn' or params['method'] == '2gcn':
             test_data = np.zeros([test_pairs.shape[0], v, m, f, 2])
@@ -72,10 +73,84 @@ class model_perf(object):
             test_data[:,:,:,0] = new_data[test_pairs[:,0], :, :]
             test_data[:,:,:,1] = new_data[test_pairs[:,1], :, :]
         print (test_data.shape)
-        string, self.test_auc[name], self.test_loss[name], _ = \
+        string, self.test_auc[name], self.test_loss[name], _, test_represent = \
                 model.evaluate(test_data, test_labels)
         print('test  {}'.format(string))
+
+        f = open('test.roi.eu.gcn.pkl', 'wb')
+        pkl.dump(test_represent, f, -1)
+        f.close()
+        f = open('test.roi.pairs.eu.gcn.pkl', 'wb')
+        pkl.dump(test_pairs, f, -1)
+        f.close()
+        self.save_represent(model, data, train_pairs, train_labels, test_pairs, test_labels, params)
         self.names.add(name)
+
+    def save_represent_fnn(self, model, data, train_pairs, train_labels, test_pairs, test_labels, params):
+
+        n, v, m, f = data.shape
+        new_data = np.zeros([n, v, m*f])
+        for i in range(n):
+            for j in range(v):
+                new_data[i, j, :] = data[i, j, :, :].flatten()
+
+        n_train = train_pairs.shape[0]
+        num = int(np.ceil(n_train/10))
+        represent = np.zeros([n_train, 84], dtype='float32')
+        for i in range(10): # training data, split into 10 sets
+            if (i+1)*num <= n_train:
+                tmp_pairs = train_pairs[i*num:(i+1)*num,:]
+                train_x = np.zeros([tmp_pairs.shape[0], v, m*f, 2])
+                train_x[:,:,:,0] = new_data[tmp_pairs[:,0], :, :]
+                train_x[:,:,:,1] = new_data[tmp_pairs[:,1], :, :]
+                train_y = train_labels[i*num:(i+1)*num]
+                print (train_x.shape)
+                represent[i*num:(i+1)*num,:] = model.get_represent(train_x, train_y)
+            else:
+                tmp_pairs = train_pairs[i*num:,:]
+                train_x = np.zeros([tmp_pairs.shape[0], v, m*f, 2])
+                train_x[:,:,:,0] = new_data[tmp_pairs[:,0], :, :]
+                train_x[:,:,:,1] = new_data[tmp_pairs[:,1], :, :]
+                train_y = train_labels[i*num:]
+                print (train_x.shape)
+                represent[i*num:,:] = model.get_represent(train_x, train_y)
+        f = open('train.roi.eu.gcn.pkl', 'wb')
+        pkl.dump(represent, f, -1)
+        f.close()
+        f = open('train.roi.pairs.eu.gcn.pkl', 'wb')
+        pkl.dump(train_pairs, f, -1)
+        f.close()
+
+
+    def save_represent(self, model, data, train_pairs, train_labels, test_pairs, test_labels, params):
+
+        n, v, m, f = data.shape
+        n_train = train_pairs.shape[0]
+        num = int(np.ceil(n_train/20))
+        represent = np.zeros([n_train, 84], dtype='float32')
+        for i in range(20): # training data, split into 10 sets
+            if (i+1)*num <= n_train:
+                tmp_pairs = train_pairs[i*num:(i+1)*num,:]
+                train_x = np.zeros([tmp_pairs.shape[0], v, m, f, 2])
+                train_x[:,:,:,:,0] = data[tmp_pairs[:,0], :, :, :]
+                train_x[:,:,:,:,1] = data[tmp_pairs[:,1], :, :, :]
+                train_y = train_labels[i*num:(i+1)*num]
+                print (train_x.shape)
+                represent[i*num:(i+1)*num,:] = model.get_represent(train_x, train_y)
+            else:
+                tmp_pairs = train_pairs[i*num:,:]
+                train_x = np.zeros([tmp_pairs.shape[0], v, m, f, 2])
+                train_x[:,:,:,:,0] = data[tmp_pairs[:,0], :, :, :]
+                train_x[:,:,:,:,1] = data[tmp_pairs[:,1], :, :, :]
+                train_y = train_labels[i*num:]
+                print (train_x.shape)
+                represent[i*num:,:] = model.get_represent(train_x, train_y)
+        f = open('train.roi.eu.gcn.pkl', 'wb')
+        pkl.dump(represent, f, -1)
+        f.close()
+        f = open('train.roi.pairs.eu.gcn.pkl', 'wb')
+        pkl.dump(train_pairs, f, -1)
+        f.close()
 
 
     def save(self, data_type):
@@ -186,22 +261,33 @@ def get_feed_data(data, subj, pairs, labels, method='gcn'):
     train_y = train_labels
     val_y = val_labels
     test_y = test_labels
+    del subj
+    del train_labels, val_labels, test_labels
+    del val_pairs
+    print (val_x.shape)
     return train_pairs, train_y, val_x, val_y, test_pairs, test_y
 
 
 def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, coords, subj, data, data_type, i_fold):
     str_params = distance + '_' + view_com + '_k' + str(k) + '_m' + str(m) + '_'
     obj_params = 'softmax'
+    print (str_params)
+    print (data.shape)
 
     print ('Construct ROI graphs...')
     t_start = time.process_time()
+    # A = grid_graph(86, corners=False)
+    # A = graph.replace_random_edges(A, 0)
     coo1, coo2, coo3 = coords.shape # coo2 is the roi dimension
     features = np.zeros([coo1*coo3, coo2])
     for i in range(coo3):
         features[coo1*i:coo1*(i+1), :] = coords[:, :, i]
     dist, idx = graph.distance_scipy_spatial(np.transpose(features), k=10, metric='euclidean')
     A = graph.adjacency(dist, idx).astype(np.float32)
-
+    if is_random == 'True':
+        print ('random graph constructing...')
+        data_type = data_type + '_rdg'
+        A = graph.replace_random_edges(A, noise_level=1)
     if method == '2gcn':
         graphs, perm = coarsening.coarsen(A, levels=FLAGS.coarsening_levels, self_connections=False)
         L = [graph.laplacian(A, normalized=True) for A in graphs]
@@ -226,19 +312,53 @@ def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_s
     common['patience']       = 5
     common['regularization'] = 5e-3
     common['dropout']        = 1
-    common['learning_rate']  = 5e-3
+    common['learning_rate']  = 1e-2
     common['decay_rate']     = 0.95
     common['momentum']       = 0.9
     common['n_views']        = n_views
     common['distance']       = distance
     common['view_com']       = view_com
+    # common['brelu']          = 'b1relu'
+    # common['pool']           = 'mpool1'
+    common['lambda_']        = 0.35
+    common['mu']             = 0.6
 
     print ('Get feed pairs and labels...')
     train_pairs, train_y, val_x, val_y, test_pairs, test_y = get_feed_data(data, subj, pairs, labels, method)
     C = max(train_y)+1
     common['decay_steps']    = train_pairs.shape[0] / (common['batch_size'] * 5)
 
+
+    if method == 'fnn':
+        str_params += 'siamese_'
+        name = 'softmax' + str_params
+        params = common.copy()
+        params['method'] = 'fnn'
+        params['fin']            = 1
+        params['F']              = [m]
+        params['K']              = [1]
+        params['p']              = [1]
+        params['M']              = [C]
+        params['dir_name'] += name
+        mp.test(models.siamese_fnn(L, **params), name, params,
+        data, train_pairs, train_y, val_x, val_y, test_pairs, test_y)
+
+    if method == '2fnn':
+        str_params += 'siamese_layer2_'
+        name = 'softmax' + str_params
+        params = common.copy()
+        params['method'] = 'fnn'
+        params['fin']            = 1
+        params['F']              = [m]
+        params['K']              = [1]
+        params['p']              = [1]
+        params['M']              = [64, C]
+        params['dir_name'] += name
+        mp.test(models.siamese_fnn(L, **params), name, params,
+        data, train_pairs, train_y, val_x, val_y, test_pairs, test_y)
+
     if method == 'gcn':
+        # str_params += 'b_max_eu_'
         name = 'cgconv_softmax'
         params = common.copy()
         params['method'] = 'gcn'
@@ -276,28 +396,40 @@ def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_s
     method_type = method + '_'
     mp.fin_result(method_type + data_type + str_params + obj_params, i_fold)
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('method', type=str)
-    parser.add_argument('data_type', type=str)
+    parser.add_argument('is_random', type=str)
+    parser.add_argument('data_type1', type=str)
+    parser.add_argument('data_type2', type=str)
+    parser.add_argument('data_type3', type=str)
+    parser.add_argument('data_type4', type=str)
+    parser.add_argument('data_type5', type=str)
+    parser.add_argument('data_type6', type=str)
+    parser.add_argument('distance', type=str)
+    parser.add_argument('view_com', type=str)
     parser.add_argument('kfold', type=str)
     parser.add_argument('K', type=int)
     parser.add_argument('M', type=int)
     parser.add_argument('n_epoch', type=int)
     parser.add_argument('batch_size', type=int)
     args = parser.parse_args()
-    print (args.data_type)
     print ('---------------------------------------')
-    # See function train for all possible parameter and there definition.
-    data, subj, coords, pairs, labels = utils.load_data(data_type=args.data_type, kfold=args.kfold)
-    data_type = args.data_type
+    data_type = [args.data_type1, args.data_type2, args.data_type3, args.data_type4, args.data_type5, args.data_type6]
     n_views = len(data_type)
+    # See function train for all possible parameter and there definition.
+    data, subj, coords, pairs, labels = utils_pd.load_data(data_type=data_type, kfold=args.kfold)
+    data_type = args.data_type1 + '+' + args.data_type2  + '+' + args.data_type3  + '+' + args.data_type4 + '+' + args.data_type5  + '+' + args.data_type6
     print (data.shape)
     if args.kfold == 'True':
         for l in range(5):
+            if l >= 1:
+                break
             print ("The %d fold ..." %(l+1))
             train(method=args.method,
+                  is_random=args.is_random,
+                  distance=args.distance,
+                  view_com=args.view_com,
                   n_views=n_views,
                   k=args.K,
                   m=args.M,
@@ -313,7 +445,9 @@ if __name__ == '__main__':
     else:
         print ('fixed split')
         results = train(method=args.method,
-                        n_views=n_views,
+                        is_random=args.is_random,
+                        distance=args.distance,
+                        view_com=args.view_com,
                         k=args.K,
                         m=args.M,
                         n_epoch=args.n_epoch,

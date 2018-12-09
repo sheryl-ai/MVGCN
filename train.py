@@ -267,7 +267,7 @@ def get_feed_data(data, subj, pairs, labels, method='gcn'):
     return train_pairs, train_y, val_x, val_y, test_pairs, test_y
 
 
-def train(method, is_random, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, coords, subj, data, data_type, i_fold):
+def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, coords, subj, data, data_type, i_fold):
     str_params = view_com + '_k' + str(k) + '_m' + str(m) + '_'
     obj_params = 'softmax'
     print (str_params)
@@ -282,10 +282,7 @@ def train(method, is_random, view_com, n_views, k, m, n_epoch, batch_size, pairs
         features[coo1*i:coo1*(i+1), :] = coords[:, :, i]
     dist, idx = graph.distance_scipy_spatial(np.transpose(features), k=10, metric='euclidean')
     A = graph.adjacency(dist, idx).astype(np.float32)
-    if is_random == 'True':
-        print ('random graph constructing...')
-        data_type = data_type + '_rdg'
-        A = graph.replace_random_edges(A, noise_level=1)
+
     if method == '2gcn':
         graphs, perm = coarsening.coarsen(A, levels=FLAGS.coarsening_levels, self_connections=False)
         L = [graph.laplacian(A, normalized=True) for A in graphs]
@@ -396,7 +393,6 @@ def train(method, is_random, view_com, n_views, k, m, n_epoch, batch_size, pairs
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('method', type=str)
-    parser.add_argument('is_random', type=str)
     parser.add_argument('data_type1', type=str)
     parser.add_argument('data_type2', type=str)
     parser.add_argument('data_type3', type=str)
@@ -423,7 +419,6 @@ if __name__ == '__main__':
                 break
             print ("The %d fold ..." %(l+1))
             train(method=args.method,
-                  is_random=args.is_random,
                   view_com=args.view_com,
                   n_views=n_views,
                   k=args.K,
@@ -440,7 +435,6 @@ if __name__ == '__main__':
     else:
         print ('fixed split')
         train(method=args.method,
-                is_random=args.is_random,
                 view_com=args.view_com,
                 n_views=n_views,
                 k=args.K,

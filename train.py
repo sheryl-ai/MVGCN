@@ -77,13 +77,13 @@ class model_perf(object):
                 model.evaluate(test_data, test_labels)
         print('test  {}'.format(string))
 
-        f = open('test.roi.eu.gcn.pkl', 'wb')
-        pkl.dump(test_represent, f, -1)
-        f.close()
-        f = open('test.roi.pairs.eu.gcn.pkl', 'wb')
-        pkl.dump(test_pairs, f, -1)
-        f.close()
-        self.save_represent(model, data, train_pairs, train_labels, test_pairs, test_labels, params)
+        # f = open('test.roi.gcn.pkl', 'wb')
+        # pkl.dump(test_represent, f, -1)
+        # f.close()
+        # f = open('test.roi.pairs.gcn.pkl', 'wb')
+        # pkl.dump(test_pairs, f, -1)
+        # f.close()
+        # self.save_represent(model, data, train_pairs, train_labels, test_pairs, test_labels, params)
         self.names.add(name)
 
     def save_represent_fnn(self, model, data, train_pairs, train_labels, test_pairs, test_labels, params):
@@ -145,10 +145,10 @@ class model_perf(object):
                 train_y = train_labels[i*num:]
                 print (train_x.shape)
                 represent[i*num:,:] = model.get_represent(train_x, train_y)
-        f = open('train.roi.eu.gcn.pkl', 'wb')
+        f = open('train.roi.gcn.pkl', 'wb')
         pkl.dump(represent, f, -1)
         f.close()
-        f = open('train.roi.pairs.eu.gcn.pkl', 'wb')
+        f = open('train.roi.pairs.gcn.pkl', 'wb')
         pkl.dump(train_pairs, f, -1)
         f.close()
 
@@ -264,15 +264,13 @@ def get_feed_data(data, subj, pairs, labels, method='gcn'):
     del subj
     del train_labels, val_labels, test_labels
     del val_pairs
-    print (val_x.shape)
     return train_pairs, train_y, val_x, val_y, test_pairs, test_y
 
 
-def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, coords, subj, data, data_type, i_fold):
-    str_params = distance + '_' + view_com + '_k' + str(k) + '_m' + str(m) + '_'
+def train(method, is_random, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, coords, subj, data, data_type, i_fold):
+    str_params = view_com + '_k' + str(k) + '_m' + str(m) + '_'
     obj_params = 'softmax'
     print (str_params)
-    print (data.shape)
 
     print ('Construct ROI graphs...')
     t_start = time.process_time()
@@ -316,7 +314,6 @@ def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_s
     common['decay_rate']     = 0.95
     common['momentum']       = 0.9
     common['n_views']        = n_views
-    common['distance']       = distance
     common['view_com']       = view_com
     # common['brelu']          = 'b1relu'
     # common['pool']           = 'mpool1'
@@ -406,7 +403,6 @@ if __name__ == '__main__':
     parser.add_argument('data_type4', type=str)
     parser.add_argument('data_type5', type=str)
     parser.add_argument('data_type6', type=str)
-    parser.add_argument('distance', type=str)
     parser.add_argument('view_com', type=str)
     parser.add_argument('kfold', type=str)
     parser.add_argument('K', type=int)
@@ -428,7 +424,6 @@ if __name__ == '__main__':
             print ("The %d fold ..." %(l+1))
             train(method=args.method,
                   is_random=args.is_random,
-                  distance=args.distance,
                   view_com=args.view_com,
                   n_views=n_views,
                   k=args.K,
@@ -446,7 +441,6 @@ if __name__ == '__main__':
         print ('fixed split')
         train(method=args.method,
                 is_random=args.is_random,
-                distance=args.distance,
                 view_com=args.view_com,
                 n_views=n_views,
                 k=args.K,

@@ -14,11 +14,11 @@ from sklearn.model_selection import StratifiedKFold
 
 bad_mri_id = [523, 524, 639, 643, 647, 767]
 
-def load_dti(data_type): 
+def load_dti(data_type):
     delete_sid = [373] + bad_mri_id # dti hough do not have the id 373
     subj = list()
     data = list()
-    filepath = '../../../data/input/dti.roi/' + data_type[0]
+    filepath = '../../data/ppmi/input/dti.roi/' + data_type[0]
     sid = sio.loadmat(filepath + '_subject_id.mat')[data_type[0] + '_subject_id'][0, :]
     # print (sid)
     for i in sid:
@@ -41,7 +41,7 @@ def load_dti(data_type):
 
 
 def load_roi_coords():
-    f = open('../../../data/input/dti.coo.pkl', 'rb')
+    f = open('../../data/ppmi/input/dti.coo.pkl', 'rb')
     coords = pkl.load(f)
     return coords
 
@@ -50,7 +50,7 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
     """Load data."""
     print (data_type)
     # load pairs
-    f = open('../../../data/input/dti.pairs.pkl', 'rb')
+    f = open('../../data/ppmi/input/dti.pairs.pkl', 'rb')
     pairs, labels = pkl.load(f)
     f.close()
 

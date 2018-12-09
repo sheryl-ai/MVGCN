@@ -280,7 +280,6 @@ def train(method, is_random, distance, view_com, n_views, k, m, n_epoch, batch_s
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('method', type=str)
-    parser.add_argument('is_random', type=str)
     parser.add_argument('data_type', type=str)
     parser.add_argument('kfold', type=str)
     parser.add_argument('K', type=int)
@@ -313,6 +312,7 @@ if __name__ == '__main__':
     else:
         print ('fixed split')
         results = train(method=args.method,
+                        n_views=n_views,
                         k=args.K,
                         m=args.M,
                         n_epoch=args.n_epoch,

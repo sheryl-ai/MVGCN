@@ -11,7 +11,7 @@ declare -a method=("gcn", "2gcn")
 declare -a view="dti_fact dti_rk2 dti_sl dti_tl qbi_rk2 hough"
 
 # predefined parameters: 'method' 'is_random' 'data_type' 'kfold' 'K' 'M' 'n_epoch' 'batch_size'
-python3 train_pd.py "gcn" 'False' $view 'eu' 'max' 'True' 30 128 20 32
+python3 train.py "gcn" 'False' $view 'eu' 'max' 'True' 30 128 20 32
 
 
 # now loop through the above array

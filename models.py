@@ -78,8 +78,8 @@ class base_model(object):
     def fit(self, data, train_pairs, train_labels, val_data, val_labels):
         t_process, t_wall = time.process_time(), time.time()
         sess = tf.Session(graph=self.graph)
-        # shutil.rmtree(self._get_path('summaries'), ignore_errors=True)
-        # writer = tf.summary.FileWriter(self._get_path('summaries'), self.graph)
+        shutil.rmtree(self._get_path('summaries'), ignore_errors=True)
+        writer = tf.summary.FileWriter(self._get_path('summaries'), self.graph)
         shutil.rmtree(self._get_path('checkpoints'), ignore_errors=True)
         os.makedirs(self._get_path('checkpoints'))
         path = os.path.join(self._get_path('checkpoints'), 'model')
@@ -129,7 +129,7 @@ class base_model(object):
                 summary.ParseFromString(sess.run(self.op_summary, feed_dict))
                 summary.value.add(tag='validataion/auc', simple_value=auc)
                 summary.value.add(tag='validation/loss', simple_value=loss)
-                # writer.add_summary(summary, step)
+                writer.add_summary(summary, step)
 
                 # Save model parameters (for evaluation).
                 self.op_saver.save(sess, path, global_step=step)
@@ -148,7 +148,7 @@ class base_model(object):
                 break
         # print('validation accuracy: peak = {:.2f}, mean = {:.2f}'.format(max(accuracies), np.mean(accuracies[-10:])))
         print('validation auc: peak = {:.2f}, mean = {:.2f}'.format(max(aucs), np.mean(aucs[-10:])))
-        # writer.close()
+        writer.close()
         sess.close()
 
         t_step = (time.time() - t_wall) / num_steps
@@ -336,8 +336,11 @@ class base_model(object):
     # Helper methods.
 
     def _get_path(self, folder):
-        path = os.path.dirname(os.path.realpath(__file__))
-        return os.path.join(path, '..', folder, self.dir_name)
+        # path = os.path.dirname(os.path.realpath(__file__))
+        # return os.path.join(path, '..', folder, self.dir_name)
+        path = '../../models/'
+        return os.path.join(path, folder, self.dir_name)
+
 
     def _get_session(self, sess=None):
         """Restore parameters if no session given."""
@@ -692,7 +695,6 @@ class siamese_m_cgcnn(base_model):
         # Filter: Fin*Fout filters of order K, i.e. one filterbank per feature pair.
         W = self._weight_variable([Fin*K, Fout], regularization=False)
         x = tf.matmul(x, W)  # N*M x Fout
-        print (W.get_shape())
         return tf.reshape(x, [N, M, Fout])  # N x M x Fout
 
     def b1relu(self, x):
@@ -777,7 +779,7 @@ class siamese_m_cgcnn(base_model):
         for v in view_features[1:]:
             v = tf.expand_dims(v, 0)
             vp = tf.concat([vp, v], axis=0)
-        print ('vp before reducing:', vp.get_shape().as_list())
+        # print ('vp before reducing:', vp.get_shape().as_list())
         if method == 'max':
             vp = tf.reduce_max(vp, [0], name=name)
         elif method == 'mean':
@@ -788,7 +790,6 @@ class siamese_m_cgcnn(base_model):
         """views: N x V x M x F x 2 tensor"""
 
         n_views = views.get_shape().as_list()[1]
-        print (n_views)
         # transpose views : (NxVxMxFx2) -> (VxNxMxFx2)
         views = tf.transpose(views, perm=[1, 0, 2, 3, 4])
 

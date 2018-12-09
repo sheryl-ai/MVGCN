@@ -366,6 +366,197 @@ class base_model(object):
     def _conv2d(self, x, W):
         return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
+class siamese_m_fnn(base_model):
+    """
+    Graph CNN which uses the Chebyshev approximation.
+
+    The following are hyper-parameters of graph convolutional layers.
+    They are lists, which length is equal to the number of gconv layers.
+        F: Number of features.
+        K: List of polynomial orders, i.e. filter sizes or number of hopes.
+        p: Pooling size.
+           Should be 1 (no pooling) or a power of 2 (reduction by 2 at each coarser level).
+           Beware to have coarsened enough.
+
+    L: List of Graph Laplacians. Size M x M. One per coarsening level.
+
+    The following are hyper-parameters of fully connected layers.
+    They are lists, which length is equal to the number of fc layers.
+        M: Number of features per sample, i.e. number of hidden neurons.
+           The last layer is the softmax, i.e. M[-1] is the number of classes.
+
+    The following are choices of implementation for various blocks.
+        filter: filtering operation, e.g. chebyshev5, lanczos2 etc.
+        brelu: bias and relu, e.g. b1relu or b2relu.
+        pool: pooling, e.g. mpool1.
+
+    Training parameters:
+        num_epochs:    Number of training epochs.
+        learning_rate: Initial learning rate.
+        decay_rate:    Base of exponential decay. No decay with 1.
+        decay_steps:   Number of steps after which the learning rate decays.
+        momentum:      Momentum. 0 indicates no momentum.
+
+    Regularization parameters:
+        regularization: L2 regularizations of weights and biases.
+        dropout:        Dropout (fc layers): probability to keep hidden neurons. No dropout with 1.
+        batch_size:     Batch size. Must divide evenly into the dataset sizes.
+        eval_frequency: Number of steps between evaluations.
+
+    Directories:
+        dir_name: Name for directories (summaries and model parameters).
+    """
+    def __init__(self, L, F, K, p, M, fin, lambda_, mu, n_views, view_com,
+                method='fnn', filter='fc', brelu='b1relu', pool='mpool1',
+                num_epochs=20, learning_rate=0.1, decay_rate=0.95, decay_steps=None, momentum=0.9,
+                regularization=0, dropout=0, batch_size=100, eval_frequency=200, patience=10,
+                dir_name=''):
+        super().__init__()
+
+        # Keep the useful Laplacians only. May be zero.
+        M_0 = L[0].shape[0]*L[0].shape[0]
+        j = 0
+        self.L = []
+        for pp in p:
+            self.L.append(L[j])
+            j += int(np.log2(pp)) if pp > 1 else 0
+        L = self.L
+
+        # Store attributes and bind operations.
+        self.n_views, self.view_com = n_views, view_com
+        self.lambda_, self.mu = lambda_, mu
+        self.L, self.F, self.K, self.p, self.M, self.fin = L, F, K, p, M, fin
+        self.num_epochs, self.learning_rate, self.patience = num_epochs, learning_rate, patience
+        self.decay_rate, self.decay_steps, self.momentum = decay_rate, decay_steps, momentum
+        self.regularization, self.dropout = regularization, dropout
+        self.batch_size, self.eval_frequency = batch_size, eval_frequency
+        self.dir_name = dir_name
+        self.method = method
+        self.filter = getattr(self, filter)
+        self.brelu = getattr(self, brelu)
+        self.pool = getattr(self, pool)
+
+        # Build the computational graph.
+        self.build_multi_fnn_graph(M_0)
+
+    def b1relu(self, x):
+        """Bias and ReLU. One bias per filter."""
+        N, M, F = x.get_shape()
+        b = self._bias_variable([1, 1, int(F)], regularization=False)
+        return tf.nn.relu(x + b)
+
+    def b2relu(self, x):
+        """Bias and ReLU. One bias per vertex per filter."""
+        N, M, F = x.get_shape()
+        b = self._bias_variable([1, int(M), int(F)], regularization=False)
+        return tf.nn.relu(x + b)
+
+    def mpool1(self, x, p):
+        """Max pooling of size p. Should be a power of 2."""
+        if p > 1:
+            x = tf.expand_dims(x, 3)  # N x M x F x 1
+            x = tf.nn.max_pool(x, ksize=[1,p,1,1], strides=[1,p,1,1], padding='SAME')
+            #tf.maximum
+            return tf.squeeze(x, [3])  # N x M/p x F
+        else:
+            return x
+
+    def apool1(self, x, p):
+        """Average pooling of size p. Should be a power of 2."""
+        if p > 1:
+            x = tf.expand_dims(x, 3)  # N x M x F x 1
+            x = tf.nn.avg_pool(x, ksize=[1,p,1,1], strides=[1,p,1,1], padding='SAME')
+            return tf.squeeze(x, [3])  # N x M/p x F
+        else:
+            return x
+
+    def fc(self, x, Mout, relu=True):
+        """Fully connected layer with Mout features."""
+        N, Min = x.get_shape()
+        W = self._weight_variable([int(Min), Mout], regularization=True)
+        b = self._bias_variable([Mout], regularization=True)
+        x = tf.matmul(x, W) + b
+        return tf.nn.relu(x) if relu else x
+
+    def _inference_single(self, x, dropout, name, reuse=False):
+        x_0 = x[:, :, 0]
+        x_1 = x[:, :, 1]
+
+        with tf.variable_scope("siamese", reuse=reuse) as scope:
+            for i in range(len(self.p)):
+              with tf.variable_scope('fc1{}'.format(i+1)):
+                  with tf.name_scope('filter'):
+                      x_0 = self.filter(x_0, self.F[i])
+
+            for i in range(len(self.p)):
+              with tf.variable_scope('fc2{}'.format(i+1)):
+                  with tf.name_scope('filter'):
+                      x_1 = self.filter(x_1, self.F[i])
+        return x_0, x_1
+
+    def _view_pool(self, view_features, name, method='max'):
+        """Max pooling of size p. Should be a power of 2."""
+
+        vp = tf.expand_dims(view_features[0], 0) # eg. [100] -> [1, 100]
+        for v in view_features[1:]:
+            v = tf.expand_dims(v, 0)
+            vp = tf.concat([vp, v], axis=0)
+        print ('vp before reducing:', vp.get_shape().as_list())
+        if method == 'max':
+            vp = tf.reduce_max(vp, [0], name=name)
+        elif method == 'mean':
+            vp = tf.reduce_mean(vp, [0], name=name)
+        return vp
+
+    def _inference(self, views, dropout):
+        """views: N x V x M * F x 2 tensor"""
+
+        n_views = views.get_shape().as_list()[1]
+        # transpose views : (NxVxM*Fx2) -> (VxNxM*Fx2)
+        views = tf.transpose(views, perm=[1, 0, 2, 3])
+
+        view_pool_0 = []
+        view_pool_1 = []
+        for i in range(n_views):
+
+            # set reuse True for i > 0, for weight-sharing
+            reuse = (i != 0)
+            view = tf.gather(views, i) # NxMxFx2
+
+            x_0, x_1 = self._inference_single(view, dropout, i, reuse)
+            view_pool_0.append(x_0)
+            view_pool_1.append(x_1)
+
+        # max pooling for views
+        pool_vp_0 = self._view_pool(view_pool_0, 'pool_vp', self.view_com)
+        pool_vp_1 = self._view_pool(view_pool_1, 'pool_vp', self.view_com)
+
+        # Dot product layer
+        x_0 = tf.expand_dims(x_0, 2)
+        x_1 = tf.expand_dims(x_1, 2)
+        N, M, F = x_0.get_shape()
+        x_0 = tf.reshape(x_0, [int(N * M), int(F)])
+        x_1 = tf.reshape(x_1, [int(N * M), int(F)])
+        x_0 = tf.nn.l2_normalize(x_0, dim=1, epsilon=1e-12, name=None)
+        x_1 = tf.nn.l2_normalize(x_1, dim=1, epsilon=1e-12, name=None)
+        x_ = tf.multiply(x_0, x_1)
+
+        x_ = tf.reduce_sum(x_, 1, keep_dims=True)
+        x_ = tf.reshape(x_, [int(N), int(M), 1])
+
+        # Fully connected hidden layers.
+        N, M, F = x_.get_shape()
+        x_ = tf.reshape(x_, [int(N), int(M*F)])  # N x M
+        for i, M in enumerate(self.M[:-1]):
+            with tf.variable_scope('fc{}'.format(i+1)):
+                x_ = self.fc(x_, M)
+                x_ = tf.nn.dropout(x_, dropout)
+
+        # Logits linear layer, i.e. softmax without normalization.
+        with tf.variable_scope('logits'):
+            x_ = self.fc(x_, self.M[-1], relu=False)
+        return x_
+
 
 class siamese_m_cgcnn(base_model):
     """
@@ -407,7 +598,7 @@ class siamese_m_cgcnn(base_model):
     Directories:
         dir_name: Name for directories (summaries and model parameters).
     """
-    def __init__(self, L, F, K, p, M, fin, n_views, method='gcn', filter='chebyshev5', brelu='b1relu', pool='mpool1',
+    def __init__(self, L, F, K, p, M, fin, n_views, view_com, method='gcn', filter='chebyshev5', brelu='b1relu', pool='mpool1',
                 num_epochs=20, learning_rate=0.1, decay_rate=0.95, decay_steps=None, momentum=0.9,
                 regularization=0, dropout=0, batch_size=100, eval_frequency=200, patience=10,
                 dir_name=''):
@@ -456,7 +647,7 @@ class siamese_m_cgcnn(base_model):
             print('    biases: M_{} = {}'.format(Ngconv+i+1, M[i]))
 
         # Store attributes and bind operations.
-        self.n_views = n_views
+        self.n_views, self.view_com = n_views, view_com
         self.L, self.F, self.K, self.p, self.M, self.fin = L, F, K, p, M, fin
         self.num_epochs, self.learning_rate, self.patience = num_epochs, learning_rate, patience
         self.decay_rate, self.decay_steps, self.momentum = decay_rate, decay_steps, momentum
@@ -467,8 +658,6 @@ class siamese_m_cgcnn(base_model):
         self.filter = getattr(self, filter)
         self.brelu = getattr(self, brelu)
         self.pool = getattr(self, pool)
-        print(self.patience)
-        print(self.decay_steps)
 
         # Build the computational graph.
         self.build_multi_gcn_graph(M_0)
@@ -558,7 +747,6 @@ class siamese_m_cgcnn(base_model):
         return x_
 
     def _inference_single(self, x, dropout, name, reuse=False):
-        # Graph convolutional layers.
         x_0 = tf.squeeze(x[:, :, :, 0])
         x_1 = tf.squeeze(x[:, :, :, 1])
 
@@ -626,8 +814,8 @@ class siamese_m_cgcnn(base_model):
         # max pooling for views
         pool_vp_0 = self._view_pool(view_pool_0, 'pool_vp', self.view_com)
         pool_vp_1 = self._view_pool(view_pool_1, 'pool_vp', self.view_com)
-        print ('pool_vp_0', pool_vp_0.get_shape().as_list())
-        print ('pool_vp_1', pool_vp_1.get_shape().as_list())
+        # print ('pool_vp_0', pool_vp_0.get_shape().as_list())
+        # print ('pool_vp_1', pool_vp_1.get_shape().as_list())
 
         # Dot product layer
         x_0 = tf.reshape(pool_vp_0, [int(N * M), int(F)])

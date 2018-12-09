@@ -40,7 +40,7 @@ def load_dti(data_type):
 
 
 def load_roi_coords():
-    f = open('../../data/ppmi/input/dti.coo.pkl', 'rb')
+    f = open('../../data/ppmi/input/dti.coo.pd.pkl', 'rb')
     coords = pkl.load(f)
     return coords
 
@@ -49,7 +49,7 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
     """Load data."""
     print (data_type)
     # load pairs
-    f = open('../../data/ppmi/input/dti.pairs.pkl', 'rb')
+    f = open('../../data/ppmi/input/dti.pd.pairs.pkl', 'rb')
     pairs, labels = pkl.load(f)
     f.close()
 

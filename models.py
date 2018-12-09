@@ -86,6 +86,7 @@ class base_model(object):
         sess.run(self.op_init)
 
         # Training.
+        count = 0
         bad_counter = 0
         accuracies = []
         aucs = []
@@ -100,6 +101,7 @@ class base_model(object):
             if len(indices) < self.batch_size:
                 indices.extend(np.random.permutation(train_pairs.shape[0]))
             idx = [indices.popleft() for i in range(self.batch_size)]
+            count += len(idx)
 
             train_data = np.zeros([len(idx), v, m, f, 2])
             train_data[:,:,:,:,0] = data[train_pairs[idx,0], :, :, :]

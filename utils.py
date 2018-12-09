@@ -20,12 +20,12 @@ def load_dti(data_type): # not that make sense, but still can be try
     data = list()
     filepath = '../../data/ppmi/input/dti.roi/' + data_type[0]
     sid = sio.loadmat(filepath + '_subject_id.mat')[data_type[0] + '_subject_id'][0, :]
-    # print (sid)
+
     for i in sid:
         data_v = list()
         if i in delete_sid:
             continue
-        # print (i)
+
         for view in data_type:
             filepath = '../../data/ppmi/input/dti.roi/' + view
             if i not in subj:
@@ -34,14 +34,13 @@ def load_dti(data_type): # not that make sense, but still can be try
             try:
                 mat = sio.loadmat(filepath + '_' + str(i) + '.mat')['A']
                 data_v.append(np.array(mat, dtype='int32'))
-                if np.sum(np.array(mat, dtype='int32')) == 0:
-                    print (i)
-                    print (view)
+                # if np.sum(np.array(mat, dtype='int32')) == 0:
+                #     print (i)
+                #     print (view)
             except IOError:
                 data_v.append(np.zeros([84, 84], dtype='int32'))
                 print("File %s does not exit" % i)
         data.append(data_v)
-    # print (np.array(data).shape)
     return data, subj
 
 def load_roi_coords():
@@ -56,15 +55,11 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
     # load pairs
     f = open('../../data/ppmi/input/dti.pd.pairs.pkl', 'rb')
     pairs, labels = pkl.load(f)
-    # print (len(pairs_labels))
-    # pairs, labels = pairs_labels
+
     f.close()
-    print (len(pairs))
-    print (len(labels))
     sid = [i[0] for i in pairs]
     a = np.unique(np.array(sid))
     sio.savemat('subject_id.mat', {'subj': a})
-    print (a)
 
     # load roi coordinates
     coords = load_roi_coords()
@@ -72,9 +67,6 @@ def load_data(data_type, valid_portion=0.1, test_portion=0.1, kfold='False'):
 
     # load data
     data, subj = load_dti(data_type) # dictionary for multiview
-    # data = load_mri(data_type)
-    print (len(data))
-    print (len(subj))
     data = np.array(data)
 
     # train, validate, test split

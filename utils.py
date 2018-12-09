@@ -17,8 +17,8 @@ def load_dti(data_type):
     delete_sid = [373] + bad_mri_id # dti hough do not have the id 373
     subj = list()
     data = list()
-    filepath = '../../data/ppmi/input/dti.roi/' + data_type
-    sid = sio.loadmat(filepath + '_subject_id.mat')[data_type + '_subject_id'][0, :]
+    filepath = '../../data/ppmi/input/dti.roi/' + data_type[0]
+    sid = sio.loadmat(filepath + '_subject_id.mat')[data_type[0] + '_subject_id'][0, :]
     # print (sid)
     for i in sid:
         data_v = list()

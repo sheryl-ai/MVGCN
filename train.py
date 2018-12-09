@@ -418,7 +418,7 @@ if __name__ == '__main__':
     data_type = [args.data_type1, args.data_type2, args.data_type3, args.data_type4, args.data_type5, args.data_type6]
     n_views = len(data_type)
     # See function train for all possible parameter and there definition.
-    data, subj, coords, pairs, labels = utils_pd.load_data(data_type=data_type, kfold=args.kfold)
+    data, subj, coords, pairs, labels = utils.load_data(data_type=data_type, kfold=args.kfold)
     data_type = args.data_type1 + '+' + args.data_type2  + '+' + args.data_type3  + '+' + args.data_type4 + '+' + args.data_type5  + '+' + args.data_type6
     print (data.shape)
     if args.kfold == 'True':
@@ -444,17 +444,18 @@ if __name__ == '__main__':
                   i_fold=l)
     else:
         print ('fixed split')
-        results = train(method=args.method,
-                        is_random=args.is_random,
-                        distance=args.distance,
-                        view_com=args.view_com,
-                        k=args.K,
-                        m=args.M,
-                        n_epoch=args.n_epoch,
-                        batch_size=args.batch_size,
-                        pairs=pairs,
-                        labels=labels,
-                        coords=coords,
-                        subj=subj,
-                        data=data,
-                        data_type=data_type)
+        train(method=args.method,
+                is_random=args.is_random,
+                distance=args.distance,
+                view_com=args.view_com,
+                n_views=n_views,
+                k=args.K,
+                m=args.M,
+                n_epoch=args.n_epoch,
+                batch_size=args.batch_size,
+                pairs=pairs,
+                labels=labels,
+                coords=coords,
+                subj=subj,
+                data=data,
+                data_type=data_type)

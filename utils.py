@@ -6,7 +6,6 @@ import scipy.sparse
 import numpy as np
 import time, re
 import pickle as pkl
-import hickle as hkl
 import pandas as pd
 import scipy.io as sio
 

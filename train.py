@@ -287,9 +287,10 @@ if __name__ == '__main__':
     parser.add_argument('n_epoch', type=int)
     parser.add_argument('batch_size', type=int)
     args = parser.parse_args()
+    print (args.data_type)
     print ('---------------------------------------')
     # See function train for all possible parameter and there definition.
-    data, subj, coords, pairs, labels = utils.load_data(data_type=data_type, kfold=args.kfold)
+    data, subj, coords, pairs, labels = utils.load_data(data_type=args.data_type, kfold=args.kfold)
     data_type = args.data_type
     n_views = len(data_type)
     print (data.shape)

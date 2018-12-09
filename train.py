@@ -73,7 +73,7 @@ class model_perf(object):
             test_data[:,:,:,0] = new_data[test_pairs[:,0], :, :]
             test_data[:,:,:,1] = new_data[test_pairs[:,1], :, :]
         print (test_data.shape)
-        string, self.test_auc[name], self.test_loss[name], _, test_represent = \
+        string, self.test_auc[name], self.test_loss[name], _, = \
                 model.evaluate(test_data, test_labels)
         print('test  {}'.format(string))
 

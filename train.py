@@ -323,7 +323,7 @@ def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, c
 
     if method == 'fnn':
         str_params += 'siamese_'
-        name = 'softmax' + str_params
+        name = 'mvfnn'
         params = common.copy()
         params['method'] = 'fnn'
         params['fin']            = 1
@@ -337,7 +337,7 @@ def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, c
 
     if method == '2fnn':
         str_params += 'siamese_layer2_'
-        name = 'softmax' + str_params
+        name = 'mvfnn2'
         params = common.copy()
         params['method'] = 'fnn'
         params['fin']            = 1
@@ -351,7 +351,7 @@ def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, c
 
     if method == 'gcn':
         # str_params += 'b_max_eu_'
-        name = 'cgconv_softmax'
+        name = 'mvgcn'
         params = common.copy()
         params['method'] = 'gcn'
         params['F']              = [m] # filters
@@ -369,7 +369,7 @@ def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, c
     # Common hyper-parameters for LeNet5-like networks.
     if method == '2gcn':
         str_params += 'p4_fc64_'
-        name = 'cgconv_softmax'
+        name = 'mvgcn2'
         params = common.copy()
         params['method'] = '2gcn'
         params['F']              = [m, 64] # filters

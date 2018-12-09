@@ -314,8 +314,6 @@ def train(method, view_com, n_views, k, m, n_epoch, batch_size, pairs, labels, c
     common['view_com']       = view_com
     # common['brelu']          = 'b1relu'
     # common['pool']           = 'mpool1'
-    common['lambda_']        = 0.35
-    common['mu']             = 0.6
 
     print ('Get feed pairs and labels...')
     train_pairs, train_y, val_x, val_y, test_pairs, test_y = get_feed_data(data, subj, pairs, labels, method)

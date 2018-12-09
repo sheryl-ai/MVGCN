@@ -406,7 +406,7 @@ class siamese_m_fnn(base_model):
     Directories:
         dir_name: Name for directories (summaries and model parameters).
     """
-    def __init__(self, L, F, K, p, M, fin, lambda_, mu, n_views, view_com,
+    def __init__(self, L, F, K, p, M, fin, n_views, view_com,
                 method='fnn', filter='fc', brelu='b1relu', pool='mpool1',
                 num_epochs=20, learning_rate=0.1, decay_rate=0.95, decay_steps=None, momentum=0.9,
                 regularization=0, dropout=0, batch_size=100, eval_frequency=200, patience=10,
@@ -424,7 +424,6 @@ class siamese_m_fnn(base_model):
 
         # Store attributes and bind operations.
         self.n_views, self.view_com = n_views, view_com
-        self.lambda_, self.mu = lambda_, mu
         self.L, self.F, self.K, self.p, self.M, self.fin = L, F, K, p, M, fin
         self.num_epochs, self.learning_rate, self.patience = num_epochs, learning_rate, patience
         self.decay_rate, self.decay_steps, self.momentum = decay_rate, decay_steps, momentum

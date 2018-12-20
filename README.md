@@ -19,7 +19,7 @@ The objective function is established for a binary classification problem, which
 ## Requirements
 This package has the following requirements:
 * An NVIDIA GPU.
-* `Python3.x`
+* `Python 3.x`
 * [TensorFlow 1.4](https://github.com/tensorflow/tensorflow)
 
 ## Usage

@@ -1,4 +1,4 @@
-import gensim
+""" Code for loading data. """
 import sklearn, sklearn.datasets
 import sklearn.naive_bayes, sklearn.linear_model, sklearn.svm, sklearn.neighbors, sklearn.ensemble
 import matplotlib.pyplot as plt

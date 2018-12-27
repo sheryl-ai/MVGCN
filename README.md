@@ -15,6 +15,8 @@ The objective function is established for a binary classification problem, which
     * View pooling: combining view-based representations of DTI data that are obtained from various tractography algorithms.  
     * Pairwise matching: computing similarities by euclidean distance for sample pairs in terms of the pooled features.  
     * Softmax: classifying the output of pairwise matching layer into the matching vs. non-matching classes.
+    
+This repository contains the [slides](https://github.com/sheryl-ai/MVGCN/blob/master/slides.pdf) we presented at AMIA 2018.
 
 ## Requirements
 This package has the following requirements:

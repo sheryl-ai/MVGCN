@@ -16,7 +16,7 @@ The objective function is established for a binary classification problem, which
     * Pairwise matching: computing similarities by euclidean distance for sample pairs in terms of the pooled features.  
     * Softmax: classifying the output of pairwise matching layer into the matching vs. non-matching classes.
     
-This repository contains the [slides](https://github.com/sheryl-ai/MVGCN/blob/master/slides.pdf) we presented at AMIA 2018.
+This repository contains the [slides](https://github.com/sheryl-ai/MVGCN/blob/master/slides.pdf) we presented in AMIA 2018.
 
 ## Requirements
 This package has the following requirements:

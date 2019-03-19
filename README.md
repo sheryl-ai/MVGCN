@@ -66,3 +66,6 @@ If you happen to use our work, please consider citing our paper:
 }
 ```
 This paper can be accessed on : [Multi-View GCN] (https://arxiv.org/pdf/1805.08801.pdf)
+
+## Acknowledgements 
+We owe many thanks to Dr. Liang Zhan for helping us on processing the neuroimages. Please see the paper for funding details and additional (non-code related) acknowledgements.

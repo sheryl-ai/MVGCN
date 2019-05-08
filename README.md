@@ -58,11 +58,14 @@ Sofia Ira Ktena, Sarah Parisot, Enzo Ferrante, Martin Rajchl, Matthew Lee, Ben G
 ## References 
 If you happen to use our work, please consider citing our paper: 
 ```
-@article{zhang2018multi,
-  title={Multi-View Graph Convolutional Network and Its Applications on Neuroimage Analysis for Parkinson's Disease},
+@inproceedings{zhang2018multi,
+  title={Multi-view graph convolutional network and its applications on neuroimage analysis for parkinson’s disease},
   author={Zhang, Xi and He, Lifang and Chen, Kun and Luo, Yuan and Zhou, Jiayu and Wang, Fei},
-  journal={arXiv preprint arXiv:1805.08801},
-  year={2018}
+  booktitle={AMIA Annual Symposium Proceedings},
+  volume={2018},
+  pages={1147},
+  year={2018},
+  organization={American Medical Informatics Association}
 }
 ```
 This paper can be accessed on : [Multi-View GCN] (https://arxiv.org/pdf/1805.08801.pdf)
